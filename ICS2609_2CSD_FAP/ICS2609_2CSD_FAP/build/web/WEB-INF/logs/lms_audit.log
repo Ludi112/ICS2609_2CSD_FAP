@@ -1,4 +1,0 @@
-[2026-05-17 04:17:53] User=ludwigcalayo@admin.gmail.com             Action=LOGIN                Module=LoginServlet
-[2026-05-17 04:20:02] User=ludwigcalayo@admin.gmail.com             Action=LOGOUT               Module=LogoutServlet
-[2026-05-17 04:20:56] User=seuncheolchoi.student@gmail.com          Action=LOGIN                Module=LoginServlet
-[2026-05-17 04:21:25] User=seuncheolchoi.student@gmail.com          Action=LOGOUT               Module=LogoutServlet
