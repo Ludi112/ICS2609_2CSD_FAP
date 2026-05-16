@@ -26,15 +26,18 @@ import java.util.logging.Logger;
  * Usage:
  *   LoggerUtil.log(getServletContext(), username, "LOGIN", "LoginServlet");
  */
-public final class LoggerUtil {
+public final class LoggerUtil 
+{
 
-    private static final Logger LOGGER    = Logger.getLogger(LoggerUtil.class.getName());
-    private static final DateTimeFormatter FORMATTER =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private static final String LOG_DIR   = "logs";
-    private static final String LOG_FILE  = "lms_audit.log";
+    private static final Logger LOGGER = Logger.getLogger(LoggerUtil.class.getName());
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final String LOG_DIR = "logs";
+    private static final String LOG_FILE = "lms_audit.log";
 
-    private LoggerUtil() { /* utility class */ }
+    private LoggerUtil() 
+    { 
+        /* utility class */ 
+    }
 
     /**
      * Writes one audit entry to PostgreSQL and to the local log file.
@@ -44,64 +47,66 @@ public final class LoggerUtil {
      * @param actionType e.g. "LOGIN", "LOGOUT", "GENERATE_REPORT"
      * @param module     e.g. "LoginServlet", "ReportServlet"
      */
-    public static void log(ServletContext ctx,
-                           String username,
-                           String actionType,
-                           String module) {
-
+    public static void log(ServletContext ctx, String username, String actionType, String module) 
+    {
         String timestamp = LocalDateTime.now().format(FORMATTER);
-
-        // ── 1. Write to PostgreSQL ──────────────────────────────────────────
+        // ── 1. Write to PostgreSQL
         logToPostgres(ctx, username, actionType, module);
-
-        // ── 2. Write to local .log file inside WEB-INF/logs/ ───────────────
+        // ── 2. Write to local .log file inside WEB-INF/logs/
         logToFile(ctx, username, actionType, module, timestamp);
     }
 
-    // ── Private helpers ─────────────────────────────────────────────────────────
-
-    private static void logToPostgres(ServletContext ctx,
-                                       String username,
-                                       String actionType,
-                                       String module) {
+    private static void logToPostgres(ServletContext ctx, String username, String actionType, String module) 
+    {
         final String SQL = "INSERT INTO System_Audit_Logs "
                          + "(Username, Action_Type, Description) VALUES (?, ?, ?)";
         String description = actionType + " performed via " + module;
-
         Connection pgConn = null;
-        try {
+        try 
+        {
             pgConn = DBConnectionManager.getPostgresConnection(ctx);
-            try (PreparedStatement ps = pgConn.prepareStatement(SQL)) {
+            try (PreparedStatement ps = pgConn.prepareStatement(SQL)) 
+            {
                 ps.setString(1, username != null ? username : "unknown");
                 ps.setString(2, actionType);
                 ps.setString(3, description);
                 ps.executeUpdate();
             }
-        } catch (Exception e) {
+        } 
+        catch (Exception e) 
+        {
             // Audit failure must never crash the application
             LOGGER.log(Level.WARNING, "LoggerUtil: Could not write to PostgreSQL", e);
-        } finally {
-            if (pgConn != null) {
-                try { pgConn.close(); } catch (Exception ignored) {}
+        }
+        finally 
+        {
+            if (pgConn != null) 
+            {
+                try 
+                { 
+                    pgConn.close(); 
+                } 
+                catch (Exception ignored) 
+                {
+                }
             }
         }
     }
 
-    private static void logToFile(ServletContext ctx,
-                                   String username,
-                                   String actionType,
-                                   String module,
-                                   String timestamp) {
-        try {
+    private static void logToFile(ServletContext ctx,String username,String actionType,String module,String timestamp) 
+    {
+        try 
+        {
             // Resolve path to WEB-INF/logs/ inside the deployed app folder
             String webInfPath = ctx.getRealPath("/WEB-INF");
-            if (webInfPath == null) {
+            if (webInfPath == null) 
+            {
                 LOGGER.warning("LoggerUtil: getRealPath returned null — skipping file log");
                 return;
             }
             String logDirPath  = webInfPath + java.io.File.separator + LOG_DIR;
             String logFilePath = logDirPath + java.io.File.separator + LOG_FILE;
-
+            
             // Create the logs directory if it does not exist
             Files.createDirectories(Paths.get(logDirPath));
 
@@ -109,11 +114,14 @@ public final class LoggerUtil {
             String entry = String.format("[%s] User=%-40s Action=%-20s Module=%s%n",
                     timestamp, username, actionType, module);
 
-            try (PrintWriter pw = new PrintWriter(new FileWriter(logFilePath, true))) {
+            try (PrintWriter pw = new PrintWriter(new FileWriter(logFilePath, true))) 
+            {
                 pw.print(entry);
             }
 
-        } catch (IOException e) {
+        }
+        catch (IOException e) 
+        {
             LOGGER.log(Level.WARNING, "LoggerUtil: Could not write to log file", e);
         }
     }
