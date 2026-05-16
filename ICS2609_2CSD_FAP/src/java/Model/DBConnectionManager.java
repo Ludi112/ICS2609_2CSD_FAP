@@ -12,22 +12,28 @@ import java.sql.DriverManager;
  * Usage:
  *   Connection conn = DBConnectionManager.getDerbyConnection(getServletContext());
  */
-public class DBConnectionManager {
+public class DBConnectionManager 
+{
 
-    private DBConnectionManager() { /* utility class — no instances */ }
+    private DBConnectionManager()
+    {
+        /* utility class — no instances */ 
+    }
 
     /**
      * DBMS 1 — Apache Derby (Embedded)
      * Used for: Authentication — Users table
      * web.xml params: derby.driver, derby.url, derby.username, derby.password
      */
-    public static Connection getDerbyConnection(ServletContext ctx) throws Exception {
+    public static Connection getDerbyConnection(ServletContext ctx) throws Exception 
+    {
         Class.forName(ctx.getInitParameter("derby.driver"));
-        String url      = ctx.getInitParameter("derby.url");
+        String url = ctx.getInitParameter("derby.url");
         String username = ctx.getInitParameter("derby.username");
         String password = ctx.getInitParameter("derby.password");
         // Derby embedded uses url-only when username/password are null
-        if (username == null || username.trim().isEmpty()) {
+        if (username == null || username.trim().isEmpty()) 
+        {
             return DriverManager.getConnection(url);
         }
         return DriverManager.getConnection(url, username, password);
@@ -38,13 +44,10 @@ public class DBConnectionManager {
      * Used for: Business data — Courses, Enrollments
      * web.xml params: mysql.driver, mysql.url, mysql.username, mysql.password
      */
-    public static Connection getMySQLConnection(ServletContext ctx) throws Exception {
+    public static Connection getMySQLConnection(ServletContext ctx) throws Exception 
+    {
         Class.forName(ctx.getInitParameter("mysql.driver"));
-        return DriverManager.getConnection(
-            ctx.getInitParameter("mysql.url"),
-            ctx.getInitParameter("mysql.username"),
-            ctx.getInitParameter("mysql.password")
-        );
+        return DriverManager.getConnection(ctx.getInitParameter("mysql.url"),ctx.getInitParameter("mysql.username"),ctx.getInitParameter("mysql.password"));
     }
 
     /**
@@ -52,12 +55,9 @@ public class DBConnectionManager {
      * Used for: Audit logs, Report history
      * web.xml params: pg.driver, pg.url, pg.username, pg.password
      */
-    public static Connection getPostgresConnection(ServletContext ctx) throws Exception {
+    public static Connection getPostgresConnection(ServletContext ctx) throws Exception 
+    {
         Class.forName(ctx.getInitParameter("pg.driver"));
-        return DriverManager.getConnection(
-            ctx.getInitParameter("pg.url"),
-            ctx.getInitParameter("pg.username"),
-            ctx.getInitParameter("pg.password")
-        );
+        return DriverManager.getConnection(ctx.getInitParameter("pg.url"),ctx.getInitParameter("pg.username"),ctx.getInitParameter("pg.password"));
     }
 }
