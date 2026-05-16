@@ -10,27 +10,41 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 @WebListener
-public class AppStartupListener implements ServletContextListener {
-
+public class AppStartupListener implements ServletContextListener 
+{
     @Override
-    public void contextInitialized(ServletContextEvent sce) {
+    public void contextInitialized(ServletContextEvent sce)
+    {
         ServletContext ctx = sce.getServletContext();
         ctx.log("AppStartupListener: Initializing Derby database...");
 
         Connection conn = null;
-        try {
+        try
+        {
             conn = DBConnectionManager.getDerbyConnection(ctx);
             createUsersTable(conn);
             seedUsers(conn);
             ctx.log("AppStartupListener: Derby initialized successfully.");
-        } catch (Exception e) {
+        } 
+        catch (Exception e)
+        {
             ctx.log("AppStartupListener: Derby init FAILED", e);
-        } finally {
-            if (conn != null) try { conn.close(); } catch (Exception ignored) {}
+        } 
+        finally 
+        {
+            if (conn != null) 
+                try 
+                { 
+                    conn.close(); 
+                } 
+                catch (Exception ignored) 
+                {
+                }
         }
     }
 
-    private void createUsersTable(Connection conn) throws SQLException {
+    private void createUsersTable(Connection conn) throws SQLException 
+    {
         String createSQL =
             "CREATE TABLE Users (" +
             "    Username      VARCHAR(100) PRIMARY KEY, " +
@@ -39,20 +53,27 @@ public class AppStartupListener implements ServletContextListener {
             "    Created_Date  TIMESTAMP    DEFAULT CURRENT_TIMESTAMP" +
             ")";
 
-        try (Statement st = conn.createStatement()) {
+        try (Statement st = conn.createStatement()) 
+        {
             st.executeUpdate(createSQL);
-        } catch (SQLException e) {
-            // X0Y32 = table already exists — safe to ignore
+        } 
+        catch (SQLException e)
+        {
+            // X0Y32 = table already exists
             if ("X0Y32".equals(e.getSQLState())) {
                 // Table already exists, skip
-            } else {
+            } 
+            else 
+            {
                 throw e;
             }
         }
     }
         
-        private void seedUsers(Connection conn) throws SQLException {
-    String[] inserts = {
+        private void seedUsers(Connection conn) throws SQLException 
+        {
+    String[] inserts = 
+    {
         "INSERT INTO Users (Username, Password, Role) VALUES ('chloebernardo@admin.gmail.com', 'chloekirsten123', 'Admin')",
         "INSERT INTO Users (Username, Password, Role) VALUES ('ludwigcalayo@admin.gmail.com', 'johnludwig123', 'Admin')",
         "INSERT INTO Users (Username, Password, Role) VALUES ('miguelfineza@admin.gmail.com', 'juanmiguel123', 'Admin')",
@@ -121,13 +142,17 @@ public class AppStartupListener implements ServletContextListener {
         "INSERT INTO Users (Username, Password, Role) VALUES ('student51.lms@gmail.com', 'pass51', 'Student')"
     };
 
-
-        for (String sql : inserts) {
-            try (Statement st = conn.createStatement()) {
+        for (String sql : inserts) 
+        {
+            try (Statement st = conn.createStatement()) 
+            {
                 st.executeUpdate(sql);
-            } catch (SQLException e) {
-                // 23505 = duplicate key — user already seeded, skip
-                if (!"23505".equals(e.getSQLState())) {
+            } 
+            catch (SQLException e) 
+            {
+                // 23505 = duplicate key 
+                if (!"23505".equals(e.getSQLState()))
+                {
                     throw e;
                 }
             }
@@ -135,5 +160,7 @@ public class AppStartupListener implements ServletContextListener {
     }
 
     @Override
-    public void contextDestroyed(ServletContextEvent sce) {}
+    public void contextDestroyed(ServletContextEvent sce) 
+    {
+    }
 }   
